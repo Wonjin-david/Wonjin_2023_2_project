@@ -2,6 +2,7 @@ package org.WordMaster;
 
 import java.util.Scanner;
 
+
 public class WordManager {
     Scanner s=new Scanner(System.in);
     WordCRUD wordCRUD;
@@ -35,6 +36,12 @@ public class WordManager {
     public void start(){
         while(true){
             int menu=selectMenu();
+            if(wordCRUD.list.size()==0 && !(menu==4 || menu==0 )){
+                System.out.println("현재 저장된 단어가 없습니다. 다시 선택하세요!");
+                continue;
+            }
+
+
             if(menu==0) break;
             if(menu==4){
                 //create
@@ -43,7 +50,20 @@ public class WordManager {
                 //list
                 wordCRUD.listAll();
             }else if(menu==5){
+
+                Scanner tmp=new Scanner(System.in);
+                System.out.print("수정하고 싶은 단어는? ");
+                String udt=tmp.nextLine();
+
                 //update
+                int com=wordCRUD.update(udt);
+
+                if(com==1){
+                    System.out.println("단어 수정이 정상적으로 완료되었습니다!");
+                }else{
+                    System.out.println("잘못된 입력");
+                }
+
             }else if(menu==6){
                 //delete
             }

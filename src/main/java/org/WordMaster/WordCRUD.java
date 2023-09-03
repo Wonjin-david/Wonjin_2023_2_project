@@ -33,6 +33,37 @@ public class WordCRUD implements ICRUD{
 
     @Override
     public int update(Object obj) {
+        boolean exist=false;
+
+        for(int i=0;i<list.size();i++){
+            System.out.println("++"+list.get(i).getWord().trim()+"++");
+
+
+            String tmp=list.get(i).getWord().trim();
+
+            if(tmp.equals((String)obj)){
+                exist=true;
+                Scanner udtS=new Scanner(System.in);
+
+                System.out.print("=> 난이도(1,2,3) & 새 단어 입력 : ");
+                int level=udtS.nextInt();
+                String word=udtS.nextLine();
+
+                System.out.print("뜻 입력 : ");
+                String meaning=udtS.nextLine();
+
+                Word udtWord=new Word(0,level,word,meaning);
+
+                list.set(i,udtWord);
+
+                return 1;
+            }
+
+        }
+
+        if(!exist){
+            System.out.println("해당 단어는 존재하지 않습니다..");
+        }
         return 0;
     }
 
