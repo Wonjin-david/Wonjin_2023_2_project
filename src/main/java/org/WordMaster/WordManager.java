@@ -1,5 +1,6 @@
 package org.WordMaster;
 
+import java.nio.FloatBuffer;
 import java.util.Scanner;
 
 
@@ -34,6 +35,7 @@ public class WordManager {
 
 
     public void start(){
+        wordCRUD.loadFile();
         while(true){
             int menu=selectMenu();
             if(wordCRUD.list.size()==0 && !(menu==4 || menu==0 )){
@@ -42,30 +44,41 @@ public class WordManager {
             }
 
 
-            if(menu==0) break;
+            if(menu==0){
+                System.out.println("\n프로그램 종료! 다음에 만나요~");
+                break;
+            }
             if(menu==4){
                 //create
                 wordCRUD.addWord();
             }else if(menu==1){
                 //list
                 wordCRUD.listAll();
+            }else if(menu==2){
+                wordCRUD.searchLevel();
+            }else if(menu==3){
+                wordCRUD.searchWord();
             }else if(menu==5){
 
-                Scanner tmp=new Scanner(System.in);
-                System.out.print("수정하고 싶은 단어는? ");
-                String udt=tmp.nextLine();
-
-                //update
-                int com=wordCRUD.update(udt);
-
-                if(com==1){
-                    System.out.println("단어 수정이 정상적으로 완료되었습니다!");
-                }else{
-                    System.out.println("잘못된 입력");
-                }
+//                Scanner tmp=new Scanner(System.in);
+//                System.out.print("수정하고 싶은 단어는? ");
+//                String udt=tmp.nextLine();
+//
+//                //update
+//                int com=wordCRUD.updateItem(udt);
+//
+//                if(com==1){
+//                    System.out.println("단어 수정이 정상적으로 완료되었습니다!");
+//                }else{
+//                    System.out.println("잘못된 입력");
+//                }
+                wordCRUD.updateItem();
 
             }else if(menu==6){
                 //delete
+                wordCRUD.deleteItem();
+            }else if(menu==7){
+                wordCRUD.saveFile();
             }
         }
 
