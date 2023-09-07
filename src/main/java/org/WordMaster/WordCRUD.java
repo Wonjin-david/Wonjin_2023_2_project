@@ -3,9 +3,12 @@ package org.WordMaster;
 import java.io.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class WordCRUD implements ICRUD{
+
+
     ArrayList<Word> list;
     Scanner s;
     final String fname="Dictionary.txt";
