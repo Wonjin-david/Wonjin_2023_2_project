@@ -195,7 +195,7 @@ public class WordCRUD implements ICRUD{
             Word tmpWord=iter.next();
 
             System.out.print(i+" ");
-            System.out.println(tmpWord.toString()+"    "+tmpWord.hashCode());
+            System.out.println(tmpWord.toString());
 
             i++;
         }
