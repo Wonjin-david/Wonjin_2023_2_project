@@ -11,9 +11,12 @@ import java.util.Scanner;
 
 public class WordCRUD implements ICRUD{
 
-    final String selectAll="select * from Dictionary";
+    final String WORD_SELECTAll="select * from Dictionary";
+    final String WORD_SELECT="select * from Dictionary where word like ? ";
     final String WORD_INSERT="insert into Dictionary (level, word, meaning, regdate) "
             +"values (?,?,?,?) ";
+    final String WORD_UPDATE="update Dictionary set meaning=? where id=? ";
+    final String WORD_DELETE="delete from Dictionary where id=?";
 
     HashSet<Word> set;
     Scanner s;
@@ -26,13 +29,22 @@ public class WordCRUD implements ICRUD{
         conn=DBConnection.getConnection();
     }
 
-    public void loadData(){
+    public void loadData(String keyword){
         set.clear();
 
         try {
-            Statement stmt=conn.createStatement();
-            ResultSet rs=stmt.executeQuery(selectAll);
-            System.out.println("here");
+            PreparedStatement stmt;
+            ResultSet rs;
+            if(keyword.equals("")){
+                stmt=conn.prepareStatement(WORD_SELECTAll);
+                rs=stmt.executeQuery();
+            }else{
+                stmt=conn.prepareStatement(WORD_SELECT);
+                stmt.setString(1,"%"+keyword+"%");
+                rs=stmt.executeQuery();
+            }
+
+//            System.out.println(keyword+" "+stmt);
             while(true){
                 if(!rs.next()) break;
                 int id=rs.getInt("id");
@@ -106,17 +118,25 @@ public class WordCRUD implements ICRUD{
     }
 
     @Override
+    public int update(Word one){
+        int retVal=0;
+        PreparedStatement pstmt;
+        try {
+            pstmt=conn.prepareStatement(WORD_UPDATE);
+            pstmt.setString(1,one.getMeaning());
+            pstmt.setInt(2,one.getId());
+            retVal=pstmt.executeUpdate();
+            pstmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return retVal;
+    }
     public int updateItem() {
 
         System.out.print("=> 수정할 단어 검색 : ");
         String keyword=s.next();
-
-        ArrayList<Word> idList=this.listAll(keyword);
-
-        if(idList.size()==0){
-            System.out.println("해당 단어는 존재하지 않습니다.");
-            return 0;
-        }
+        ArrayList<Word> idList=listAll(keyword);
 
         System.out.print("=> 수정할 번호 선택 : ");
         int id=s.nextInt();
@@ -135,15 +155,34 @@ public class WordCRUD implements ICRUD{
         System.out.print("뜻 입력 : ");
         String meaning=s.nextLine();
 
+        int val=this.update(new Word(idList.get(id-1).getId(),level,word,meaning));
 
-        set.remove(idList.get(id-1));
-        set.add(new Word(0,level,word,meaning));
-        System.out.println("단어가 수정되었습니다. ");
+        if(val>0){
+            set.remove(idList.get(id-1));
+            set.add(new Word(0,level,word,meaning));
+            System.out.println("단어가 수정되었습니다. ");
+        }else{
+            System.out.println("[수정] 에러발생 !!!");
+        }
+
+
 
         return 0;
     }
+    public int delete(Word one){
+        int retVal=0;
+        PreparedStatement pstmt;
+        try{
+            pstmt=conn.prepareStatement(WORD_DELETE);
+            pstmt.setInt(1,one.getId());
+            retVal=pstmt.executeUpdate();
+            pstmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return retVal;
+    }
 
-    @Override
     public int deleteItem() {
         System.out.print("=> 삭제할 단어 검색 : ");
         String keyword=s.next();
@@ -161,7 +200,7 @@ public class WordCRUD implements ICRUD{
 
         s.nextLine();
 
-        if(id<0 || id>=idList.size()){
+        if(id<0 || (id-1)>=idList.size()){
             System.out.println("선택한 번호가 범위를 벗어났습니다!!!");
             return 0;
         }
@@ -169,17 +208,18 @@ public class WordCRUD implements ICRUD{
         System.out.print("=> 정말로 삭제하실래요?(Y/n) ");
         String ans=s.next();
 
+
         if(ans.equalsIgnoreCase("y")){
+        int val = this.delete(new Word(idList.get(id - 1).getId(), 0, "", ""));
             set.remove(idList.get(id-1));
             System.out.println("단어가 삭제되었습니다. ");
         }else{
             System.out.println("취소되었습니다. ");
         }
 
-        return 0;
+        return 1;
     }
 
-    @Override
     public void selectOne(int id) {
 
     }
@@ -242,28 +282,54 @@ public class WordCRUD implements ICRUD{
         }
     }
 
-    public void listAll(){
+    public ArrayList<Word> listAll(String keyword){
+        ArrayList<Word> idList=new ArrayList<>();
+        loadData(keyword);
         System.out.println("-------------------------------- ");
 
         int i=1;
+        int j=0;
 
         Iterator<Word> iter=set.iterator();
 
         while(iter.hasNext()){
             Word tmpWord=iter.next();
+            String word=tmpWord.getWord();
+            if(word.contains(keyword)){
+                System.out.print((j+1)+" ");
+                System.out.println(tmpWord.toString());
 
-            System.out.print(i+" ");
-            System.out.println(tmpWord.toString());
-
-            i++;
+                idList.add(tmpWord);
+                j++;
+            }else continue;
         }
+
+
+//        while(iter.hasNext()){
+//            Word tmpWord=iter.next();
+//
+//            String word=tmpWord.getWord();
+//            if(word.contains(keyword)){
+//                System.out.print((j+1)+" ");
+//                System.out.println(tmpWord.toString());
+//
+//                idList.add(tmpWord);
+//                j++;
+//            }else continue;
+//
+//            System.out.print(i+" ");
+//            System.out.println(tmpWord.toString());
+//
+//            i++;
+//        }
 
         System.out.println("-------------------------------- \n");
 
+        return idList;
     }
 
     private void listAll(int level) {
-        loadData();
+        loadData("");
         int j=0;
 
         Iterator<Word> iter=set.iterator();
@@ -286,30 +352,30 @@ public class WordCRUD implements ICRUD{
         System.out.println("-------------------------------- \n");
     }
 
-    public ArrayList<Word> listAll(String keyword) {
-        ArrayList<Word> idList=new ArrayList<>();
-        int j=0;
-
-        System.out.println("-------------------------------- ");
-
-        Iterator<Word> iter=set.iterator();
-
-        while(iter.hasNext()){
-            Word tmpWord=iter.next();
-            String word=tmpWord.getWord();
-            if(word.contains(keyword)){
-                System.out.print((j+1)+" ");
-                System.out.println(tmpWord.toString());
-
-                idList.add(tmpWord);
-                j++;
-            }else continue;
-        }
-
-        System.out.println("-------------------------------- \n");
-
-        return idList;
-    }
+//    public ArrayList<Word> listAll(String keyword) {
+//        ArrayList<Word> idList=new ArrayList<>();
+//        int j=0;
+//
+//        System.out.println("-------------------------------- ");
+//
+//        Iterator<Word> iter=set.iterator();
+//
+//        while(iter.hasNext()){
+//            Word tmpWord=iter.next();
+//            String word=tmpWord.getWord();
+//            if(word.contains(keyword)){
+//                System.out.print((j+1)+" ");
+//                System.out.println(tmpWord.toString());
+//
+//                idList.add(tmpWord);
+//                j++;
+//            }else continue;
+//        }
+//
+//        System.out.println("-------------------------------- \n");
+//
+//        return idList;
+//    }
 
 
 }

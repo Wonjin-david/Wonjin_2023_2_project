@@ -34,7 +34,7 @@ public class WordManager {
 
 
     public void start(){
-        wordCRUD.loadData();
+        wordCRUD.loadData("");
         while(true){
             int menu=selectMenu();
             if(wordCRUD.set.size()==0 && !(menu==4 || menu==0 )){
@@ -52,7 +52,7 @@ public class WordManager {
                 wordCRUD.addWord();
             }else if(menu==1){
                 //list
-                wordCRUD.listAll();
+                wordCRUD.listAll("");
             }else if(menu==2){
                 wordCRUD.searchLevel();
             }else if(menu==3){
