@@ -144,7 +144,7 @@ public class WordCRUD implements ICRUD{
         s.nextLine();
 
         if(id<0 || (id-1)>=idList.size()){
-            System.out.println("id: "+id+" idList.size: "+idList.size());
+//            System.out.println("id: "+id+" idList.size: "+idList.size());
             System.out.println("선택한 번호가 범위를 벗어났습니다!!!");
             return 0;
         }
