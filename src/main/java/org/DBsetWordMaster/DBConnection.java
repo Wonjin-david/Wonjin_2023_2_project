@@ -11,7 +11,7 @@ public class DBConnection {
             try {
                 Class.forName("org.sqlite.JDBC");
                 conn= DriverManager.getConnection("jdbc:sqlite:/sqlite/mywordlist.db");
-                System.out.println("성공");
+//                System.out.println("성공");
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             } catch (SQLException e) {
