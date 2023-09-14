@@ -35,6 +35,7 @@ public class WordManager {
 
     public void start(){
         wordCRUD.loadData("");
+        System.out.println("=> " +wordCRUD.set.size()+"개 단어 로딩 완료! \n");
         while(true){
             int menu=selectMenu();
             if(wordCRUD.set.size()==0 && !(menu==4 || menu==0 )){
