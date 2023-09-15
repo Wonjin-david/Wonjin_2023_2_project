@@ -1,5 +1,7 @@
 package org.DBsetWordMaster;
 
+import org.sqlite.core.DB;
+
 import java.io.*;
 import java.sql.*;
 import java.time.LocalDate;
@@ -9,28 +11,32 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Scanner;
 
+
 public class WordCRUD implements ICRUD{
 
     final String WORD_SELECTAll="select * from Dictionary";
     final String WORD_SELECT="select * from Dictionary where word like ? ";
     final String WORD_INSERT="insert into Dictionary (level, word, meaning, regdate) "
             +"values (?,?,?,?) ";
+    final String WORD_SELECT_ID="select id from Dictionary where word = ?";
     final String WORD_UPDATE="update Dictionary set meaning=? where id=? ";
     final String WORD_DELETE="delete from Dictionary where id=?";
 
     HashSet<Word> set;
+    ArrayList<Word> list;
     Scanner s;
     final String fname="Dictionary.txt";
     Connection conn;
 
     public WordCRUD(Scanner s) {
         set=new HashSet<>();
+        list=new ArrayList<>();
         this.s=s;
         conn=DBConnection.getConnection();
     }
 
     public void loadData(String keyword){
-        set.clear();
+        list.clear();
 
         try {
             PreparedStatement stmt;
@@ -52,6 +58,7 @@ public class WordCRUD implements ICRUD{
                 String word=rs.getString("word");
                 String meaning=rs.getString("meaning");
                 set.add(new Word(id,level,word,meaning));
+                list.add(new Word(id,level,word,meaning));
             }
             rs.close();
             stmt.close();
@@ -126,6 +133,7 @@ public class WordCRUD implements ICRUD{
             pstmt.setString(1,one.getMeaning());
             pstmt.setInt(2,one.getId());
             retVal=pstmt.executeUpdate();
+            System.out.println(pstmt);
             pstmt.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -137,6 +145,11 @@ public class WordCRUD implements ICRUD{
         System.out.print("=> 수정할 단어 검색 : ");
         String keyword=s.next();
         ArrayList<Word> idList=listAll(keyword);
+
+        if(idList.size()==0){
+            System.out.println("해당 단어는 존재하지 않습니다.");
+            return 0;
+        }
 
         System.out.print("=> 수정할 번호 선택 : ");
         int id=s.nextInt();
@@ -151,6 +164,21 @@ public class WordCRUD implements ICRUD{
 
         int level=idList.get(id-1).getLevel();
         String word=idList.get(id-1).getWord();
+
+        PreparedStatement pstmt;
+        int DB_id;
+
+        try {
+            pstmt=conn.prepareStatement(WORD_SELECT_ID);
+            pstmt.setString(1,idList.get(id-1).getWord());
+            DB_id=pstmt.executeUpdate();
+
+            System.out.println(DB_id);
+
+            pstmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.print("뜻 입력 : ");
         String meaning=s.nextLine();
@@ -352,7 +380,7 @@ public class WordCRUD implements ICRUD{
         System.out.println("-------------------------------- \n");
     }
 
-//    public ArrayList<Word> listAll(String keyword) {
+//    public ArrayList<Word> listAll(String keyword,int n) {
 //        ArrayList<Word> idList=new ArrayList<>();
 //        int j=0;
 //
