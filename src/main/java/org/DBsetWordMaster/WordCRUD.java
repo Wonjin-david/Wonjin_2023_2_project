@@ -18,7 +18,6 @@ public class WordCRUD implements ICRUD{
     final String WORD_SELECT="select * from Dictionary where word like ? ";
     final String WORD_INSERT="insert into Dictionary (level, word, meaning, regdate) "
             +"values (?,?,?,?) ";
-    final String WORD_SELECT_ID="select id from Dictionary where word = ?";
     final String WORD_UPDATE="update Dictionary set meaning=? where id=? ";
     final String WORD_DELETE="delete from Dictionary where id=?";
 
@@ -36,7 +35,7 @@ public class WordCRUD implements ICRUD{
     }
 
     public void loadData(String keyword){
-        list.clear();
+        set.clear();
 
         try {
             PreparedStatement stmt;
@@ -48,7 +47,9 @@ public class WordCRUD implements ICRUD{
                 stmt=conn.prepareStatement(WORD_SELECT);
                 stmt.setString(1,"%"+keyword+"%");
                 rs=stmt.executeQuery();
+
             }
+
 
 //            System.out.println(keyword+" "+stmt);
             while(true){
@@ -58,7 +59,7 @@ public class WordCRUD implements ICRUD{
                 String word=rs.getString("word");
                 String meaning=rs.getString("meaning");
                 set.add(new Word(id,level,word,meaning));
-                list.add(new Word(id,level,word,meaning));
+//                list.add(new Word(id,level,word,meaning));
             }
             rs.close();
             stmt.close();
@@ -148,6 +149,7 @@ public class WordCRUD implements ICRUD{
 
         if(idList.size()==0){
             System.out.println("해당 단어는 존재하지 않습니다.");
+            loadData("");
             return 0;
         }
 
@@ -159,26 +161,12 @@ public class WordCRUD implements ICRUD{
         if(id<0 || (id-1)>=idList.size()){
 //            System.out.println("id: "+id+" idList.size: "+idList.size());
             System.out.println("선택한 번호가 범위를 벗어났습니다!!!");
+            loadData("");
             return 0;
         }
 
         int level=idList.get(id-1).getLevel();
         String word=idList.get(id-1).getWord();
-
-        PreparedStatement pstmt;
-        int DB_id;
-
-        try {
-            pstmt=conn.prepareStatement(WORD_SELECT_ID);
-            pstmt.setString(1,idList.get(id-1).getWord());
-            DB_id=pstmt.executeUpdate();
-
-            System.out.println(DB_id);
-
-            pstmt.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
         System.out.print("뜻 입력 : ");
         String meaning=s.nextLine();
@@ -194,6 +182,7 @@ public class WordCRUD implements ICRUD{
         }
 
 
+        loadData("");
 
         return 0;
     }
@@ -219,6 +208,7 @@ public class WordCRUD implements ICRUD{
 
         if(idList.size()==0){
             System.out.println("해당 단어는 존재하지 않습니다.");
+            loadData("");
             return 0;
         }
 
@@ -230,6 +220,7 @@ public class WordCRUD implements ICRUD{
 
         if(id<0 || (id-1)>=idList.size()){
             System.out.println("선택한 번호가 범위를 벗어났습니다!!!");
+            loadData("");
             return 0;
         }
 
@@ -245,6 +236,7 @@ public class WordCRUD implements ICRUD{
             System.out.println("취소되었습니다. ");
         }
 
+        loadData("");
         return 1;
     }
 
@@ -253,6 +245,7 @@ public class WordCRUD implements ICRUD{
     }
 
     public void saveFile() {
+        loadData("");
         try {
             PrintWriter pr=new PrintWriter(new FileWriter(fname));
 

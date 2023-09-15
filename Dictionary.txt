@@ -2,13 +2,17 @@
 2|a|에이
 2|dolphin|고래
 2|baseball|야구
+2|color|색
 1|electric|전기의, 전기를 생산하는
-2|equipment|장비, equipment
-2|apple|사과
+2|equipment|장비
+2|cap|모자
+2|apple|맛있는 사과
 2|orange|오렌지
 1|assure|안심시키다, 확신시키다
 1|phone|휴대폰
 1|pen|펜
 2|publicity|명성, 평판, 널리 알려짐, 공표
+2|hat|모자
+3|cup|물컵
 2|melon|메로나
 2|executive|경영 간부, 임원
